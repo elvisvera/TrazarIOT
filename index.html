@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌱 TRAZAR - Sistema de Monitoreo Agrícola</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Annotation Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <!-- Chart.js DataLabels -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <!-- Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/es.min.js"></script>
+    <!-- Leaflet.js para el mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <!-- ========== SIDEBAR ========== -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="logos/logo1.png" alt="Logo Clima TRAZAR">
+                </div>
+                <div class="logo-text">
+                    <span>Clima</span><span class="highlight">TRAZAR</span>
+                    <small>v3.0</small>
+                </div>
+            </div>
+            <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Colapsar barra lateral">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-info">
+                <span class="user-name">Administrador</span>
+                <span class="user-role">🌱 Productor(@)</span>
+            </div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item active">
+                <a href="#dashboard" class="nav-link">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item" style="display: none;">
+                <a href="#cultivos" class="nav-link">
+                    <i class="fas fa-seedling"></i>
+                    <span>Cultivos</span>
+                    <span class="badge" id="cultivosBadge">4</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#estaciones" class="nav-link">
+                    <i class="fas fa-satellite-dish"></i>
+                    <span>Estaciones</span>
+                </a>
+            </li>
+            <li class="nav-item" style="display: none;">
+                <a href="#fenologia" class="nav-link">
+                    <i class="fas fa-leaf"></i>
+                    <span>Fenología</span>
+                </a>
+            </li>
+            <li class="nav-item" style="display: none;">
+                <a href="#calidad" class="nav-link">
+                    <i class="fas fa-trophy"></i>
+                    <span>Calidad</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#analisis-termico" class="nav-link">
+                    <i class="fas fa-thermometer-half"></i>
+                    <span>Análisis Térmico</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#analisis-humedad" class="nav-link">
+                    <i class="fas fa-droplet"></i>
+                    <span>Análisis Humedad</span>
+                </a>
+            </li>
+            <li class="nav-item" style="display: none;">
+                <a href="#alertas" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>Alertas</span>
+                    <span class="badge" id="alertaBadge">0</span>
+                </a>
+            </li>
+            <li class="nav-item" style="display: none;">
+                <a href="#reportes" class="nav-link">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Reportes</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#trazabilidad" class="nav-link">
+                    <i class="fas fa-qrcode"></i>
+                    <span>Trazabilidad</span>
+                </a>
+            </li>
+
+        </ul>
+        
+        <div class="sidebar-footer">
+            <div class="status-info">
+                <div class="status-item">
+                    <i class="fas fa-satellite"></i>
+                    <span id="estacionesActivas">4 Activas</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-sync-alt fa-spin"></i>
+                    <span id="ultimaActualizacion">Actualizando...</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content">
+        <!-- ===== HEADER ===== -->
+        <header class="top-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="header-title">
+                    <h1 id="pageTitle">Dashboard General</h1>
+                    <span id="pageSubtitle">Monitoreo en tiempo real</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <span class="status-dot online"></span>
+                    <span>Sistema en línea</span>
+                </div>
+                <div class="header-controls">
+                    <select id="periodSelector" class="period-selector">
+                        <option value="7">7 días</option>
+                        <option value="10" selected>10 días</option>
+                        <option value="15">15 días</option>
+                        <option value="30">30 días</option>
+                    </select>
+                    <button class="btn-refresh" id="btnRefresh">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ===== SECCIÓN: DASHBOARD ===== -->
+        <section id="dashboard" class="section active">
+            <div id="dashboardChartsPanel">
+                <div class="charts-grid">
+                    <div class="chart-card full-width">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-line"></i> Evolución de Indicadores por Cultivo</h3>
+                            <div class="chart-controls">
+                                <button class="btn-chart active" data-type="temp">Temperatura</button>
+                                <button class="btn-chart" data-type="humedad">Humedad</button>
+                                <button class="btn-chart" data-type="gdd">GDD</button>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="mainChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card full-width" style="margin-top: 20px;">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-thermometer-half"></i> Temperatura vs Humedad - Análisis de Doble Entrada</h3>
+                        <span class="chart-info">Todos los cultivos</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="scatterChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-grid" style="display: none;">
+                <div class="kpi-card" id="kpiGDDCard" style="display: none;"></div>
+            </div>
+            <div class="cultivos-resumen" style="display: none;"></div>
+            <div class="estaciones-grid" id="estacionesGrid" style="display: none;"></div>
+        </section>
+
+        <!-- ===== SECCIÓN: CULTIVOS ===== -->
+        <section id="cultivos" class="section">
+            <h2 class="section-title"><i class="fas fa-seedling"></i> Gestión de Cultivos</h2>
+            <div class="cultivos-container" id="cultivosContainer">
+                <!-- Generado por JavaScript -->
+            </div>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-mountain"></i> Altitud vs Temperatura</h3>
+                        <span class="chart-info">Correlación entre altura de estación y temperatura promedio</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="altitudTempChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-water"></i> Altitud vs Humedad</h3>
+                        <span class="chart-info">Correlación entre altura de estación y humedad promedio</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="altitudHumChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECCIÓN: ESTACIONES ===== -->
+        <section id="estaciones" class="section">
+            <h2 class="section-title"><i class="fas fa-satellite-dish"></i> Estaciones Meteorológicas</h2>
+            
+            <!-- Mapa de Estaciones -->
+            <div class="estaciones-mapa-container">
+                <div class="estaciones-mapa-header">
+                    <h3><i class="fas fa-map-marked-alt"></i> Ubicación de Estaciones</h3>
+                    <div class="mapa-legend">
+                        <span class="legend-item cafe"><span class="legend-dot" style="background: #d4a373;"></span> Café</span>
+                        <span class="legend-item cacao"><span class="legend-dot" style="background: #6d4c41;"></span> Cacao</span>
+                    </div>
+                </div>
+                <div id="estacionesMapa" class="estaciones-mapa"></div>
+                <div class="mapa-info">
+                    <span><i class="fas fa-map-pin"></i> <span id="mapaTotalEstaciones">5</span> estaciones</span>
+                    <span><i class="fas fa-mouse-pointer"></i> Haz clic en un marcador para ver detalles</span>
+                </div>
+            </div>
+
+            <div class="chart-card full-width" id="lonyaChartCard" style="margin-top: 20px; display: none;">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-line"></i> Extrapolación LONYA por correlación con la altitud</h3>
+                    <span class="chart-info">Últimos 1008 datos estimados a partir de las estaciones disponibles</span>
+                </div>
+                <div class="chart-body">
+                    <canvas id="lonyaChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Detalle de Estaciones -->
+            <div id="estacionesDetalle">
+                <!-- Generado por JavaScript -->
+            </div>
+        </section>
+
+        <!-- ===== SECCIÓN: FENOLOGÍA ===== -->
+        <section id="fenologia" class="section">
+            <h2 class="section-title"><i class="fas fa-leaf"></i> Monitoreo Fenológico</h2>
+            <div class="fenologico-grid" id="fenologicoGrid">
+                <!-- Generado por JavaScript -->
+            </div>
+        </section>
+
+        <!-- ===== SECCIÓN: CALIDAD ===== -->
+        <section id="calidad" class="section">
+            <h2 class="section-title"><i class="fas fa-trophy"></i> Índice de Calidad Predictiva</h2>
+            <div class="calidad-grid" id="calidadGrid">
+                <!-- Generado por JavaScript -->
+            </div>
+        </section>
+
+        <!-- ===== SECCIÓN: ANÁLISIS TÉRMICO ===== -->
+        <section id="analisis-termico" class="section">
+            <h2 class="section-title"><i class="fas fa-thermometer-half"></i> Análisis Térmico por Estación</h2>
+            
+            <div class="termico-controls">
+                <div class="termico-controls-group">
+                    <label for="termicoEstacionSelector">📍 Estación:</label>
+                    <select id="termicoEstacionSelector" class="termico-selector">
+                        <option value="">Selecciona una estación...</option>
+                    </select>
+                </div>
+                <div class="termico-controls-group">
+                    <label for="termicoPeriodSelector">📅 Periodo:</label>
+                    <select id="termicoPeriodSelector" class="termico-selector">
+                        <option value="7">7 días</option>
+                        <option value="10" selected>10 días</option>
+                        <option value="15">15 días</option>
+                        <option value="30">30 días</option>
+                    </select>
+                </div>
+                <button class="btn-primary termico-btn" id="termicoBtnRefresh">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
+
+            <div class="stats-grid-termico" id="termicoStatsGrid">
+                <div class="stat-card-termico color-red">
+                    <span class="stat-icon"><i class="fas fa-temperature-high"></i></span>
+                    <div class="stat-label">Temperatura Máxima</div>
+                    <div class="stat-value" id="termicoStatMax">-- <span class="unit">°C</span></div>
+                    <div class="stat-sub" id="termicoStatMaxFecha">--</div>
+                </div>
+                <div class="stat-card-termico color-blue">
+                    <span class="stat-icon"><i class="fas fa-temperature-low"></i></span>
+                    <div class="stat-label">Temperatura Mínima</div>
+                    <div class="stat-value" id="termicoStatMin">-- <span class="unit">°C</span></div>
+                    <div class="stat-sub" id="termicoStatMinFecha">--</div>
+                </div>
+                <div class="stat-card-termico color-green">
+                    <span class="stat-icon"><i class="fas fa-chart-line"></i></span>
+                    <div class="stat-label">Temperatura Promedio</div>
+                    <div class="stat-value" id="termicoStatAvg">-- <span class="unit">°C</span></div>
+                    <div class="stat-sub" id="termicoStatAvgSub">--</div>
+                </div>
+                <div class="stat-card-termico color-purple">
+                    <span class="stat-icon"><i class="fas fa-moon"></i></span>
+                    <div class="stat-label">Temp. Nocturna Prom.</div>
+                    <div class="stat-value" id="termicoStatNight">-- <span class="unit">°C</span></div>
+                    <div class="stat-sub" id="termicoStatNightSub">--</div>
+                </div>
+                <div class="stat-card-termico color-orange">
+                    <span class="stat-icon"><i class="fas fa-thermometer-half"></i></span>
+                    <div class="stat-label">Amplitud Térmica</div>
+                    <div class="stat-value" id="termicoStatAmplitude">-- <span class="unit">°C</span></div>
+                    <div class="stat-sub" id="termicoStatAmplitudeSub">Promedio diaria</div>
+                </div>
+            </div>
+
+            <div class="charts-grid-termico">
+                <div class="chart-card-termico full-width">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-line"></i> Evolución de Temperatura Diaria</h3>
+                        <span class="badge-info" id="termicoInfoEstacion">Selecciona una estación</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="termicoAvgChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-termico full-width">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-moon"></i> Temperatura Nocturna Promedio</h3>
+                        <span class="badge-info">20:00 - 06:00</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="termicoNightChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-termico full-width">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-cloud-rain"></i> Déficit de Presión de Vapor (VPD)</h3>
+                        <span class="badge-info">VPD = (1 - HR/100) × 0.6107 × 10^((7.5 × T)/(237.3 + T))</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="termicoVpdChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-termico full-width">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> VPD Alertas</h3>
+                        <span class="badge-info">Horas por categoría de riesgo hídrico</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="termicoVpdAlertasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card-termico">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> Datos Detallados de Temperatura</h3>
+                    <span class="badge-info" id="termicoTableInfo">Selecciona una estación</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>🌡️ Máxima (°C)</th>
+                                <th>🌡️ Mínima (°C)</th>
+                                <th>📊 Promedio (°C)</th>
+                                <th>🌙 Nocturna (°C)</th>
+                                <th>📈 Amplitud (°C)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="termicoTableBody">
+                            <tr><td colspan="6" class="text-center">Selecciona una estación para ver los datos</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECCIÓN: ANÁLISIS DE HUMEDAD ===== -->
+        <section id="analisis-humedad" class="section">
+            <h2 class="section-title"><i class="fas fa-droplet"></i> Análisis de Humedad por Estación</h2>
+            
+            <div class="humedad-controls">
+                <div class="humedad-controls-group">
+                    <label for="humedadEstacionSelector">📍 Estación:</label>
+                    <select id="humedadEstacionSelector" class="humedad-selector">
+                        <option value="">Selecciona una estación...</option>
+                    </select>
+                </div>
+                <div class="humedad-controls-group">
+                    <label for="humedadPeriodSelector">📅 Periodo:</label>
+                    <select id="humedadPeriodSelector" class="humedad-selector">
+                        <option value="7">7 días</option>
+                        <option value="10" selected>10 días</option>
+                        <option value="15">15 días</option>
+                        <option value="30">30 días</option>
+                    </select>
+                </div>
+                <button class="btn-primary humedad-btn" id="humedadBtnRefresh">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
+
+            <div class="stats-grid-humedad" id="humedadStatsGrid">
+                <div class="stat-card-humedad color-blue">
+                    <span class="stat-icon"><i class="fas fa-droplet"></i></span>
+                    <div class="stat-label">Humedad Máxima</div>
+                    <div class="stat-value" id="humedadStatMax">-- <span class="unit">%</span></div>
+                    <div class="stat-sub" id="humedadStatMaxFecha">--</div>
+                </div>
+                <div class="stat-card-humedad color-purple">
+                    <span class="stat-icon"><i class="fas fa-droplet"></i></span>
+                    <div class="stat-label">Humedad Mínima</div>
+                    <div class="stat-value" id="humedadStatMin">-- <span class="unit">%</span></div>
+                    <div class="stat-sub" id="humedadStatMinFecha">--</div>
+                </div>
+                <div class="stat-card-humedad color-green">
+                    <span class="stat-icon"><i class="fas fa-chart-line"></i></span>
+                    <div class="stat-label">Humedad Promedio</div>
+                    <div class="stat-value" id="humedadStatAvg">-- <span class="unit">%</span></div>
+                    <div class="stat-sub" id="humedadStatAvgSub">--</div>
+                </div>
+                <div class="stat-card-humedad color-orange">
+                    <span class="stat-icon"><i class="fas fa-thermometer-half"></i></span>
+                    <div class="stat-label">Rango de Humedad</div>
+                    <div class="stat-value" id="humedadStatRange">-- <span class="unit">%</span></div>
+                    <div class="stat-sub" id="humedadStatRangeSub">Promedio diario</div>
+                </div>
+                <div class="stat-card-humedad color-red">
+                    <span class="stat-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                    <div class="stat-label">Días con Exceso</div>
+                    <div class="stat-value" id="humedadStatExceso">--</div>
+                    <div class="stat-sub" id="humedadStatExcesoSub">HR > 80%</div>
+                </div>
+            </div>
+
+            <div class="charts-grid-humedad">
+                <div class="chart-card-humedad full-width">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-line"></i> Evolución de Humedad Promedio Diaria</h3>
+                        <span class="badge-info" id="humedadInfoEstacion">Selecciona una estación</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="humedadAvgChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-humedad">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-thermometer-half"></i> Máximas y Mínimas Diarias</h3>
+                        <span class="badge-info">Comparativa</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="humedadMinMaxChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-humedad">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-bar"></i> Distribución de Humedad</h3>
+                        <span class="badge-info">Frecuencia</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="humedadDistChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-humedad full-width">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-clock"></i> Horas con Humedad Superior a 90%</h3>
+                        <span class="badge-info">Umbral 90%</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="humedadHoras90Chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-humedad full-width">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-snowflake"></i> Índice de Potencial de Helada</h3>
+                        <span class="badge-info">IRH = T - Td</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="humedadPuntoRocioChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card-humedad">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> Datos Detallados de Humedad</h3>
+                    <span class="badge-info" id="humedadTableInfo">Selecciona una estación</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>💧 Máxima (%)</th>
+                                <th>💧 Mínima (%)</th>
+                                <th>📊 Promedio (%)</th>
+                                <th>📈 Rango (%)</th>
+                                <th>⚠️ Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="humedadTableBody">
+                            <tr><td colspan="6" class="text-center">Selecciona una estación para ver los datos</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECCIÓN: ALERTAS ===== -->
+        <section id="alertas" class="section">
+            <h2 class="section-title"><i class="fas fa-bell"></i> Sistema de Alertas</h2>
+            <div class="alertas-container" id="alertasContainer">
+                <div class="alertas-empty">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No hay alertas activas</p>
+                    <span>Todos los cultivos en condiciones óptimas</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECCIÓN: REPORTES ===== -->
+        <section id="reportes" class="section">
+            <h2 class="section-title"><i class="fas fa-file-alt"></i> Generación de Reportes</h2>
+            
+            <div class="reporte-controls">
+                <div class="reporte-controls-group">
+                    <label for="reporteEstacionSelector">📍 Estación:</label>
+                    <select id="reporteEstacionSelector" class="reporte-selector">
+                        <option value="">🌐 Todas las estaciones</option>
+                    </select>
+                </div>
+                <div class="reporte-controls-group">
+                    <label for="reporteFechaInicio">📅 Fecha Inicio:</label>
+                    <input type="date" id="reporteFechaInicio" class="reporte-input">
+                </div>
+                <div class="reporte-controls-group">
+                    <label for="reporteFechaFin">📅 Fecha Fin:</label>
+                    <input type="date" id="reporteFechaFin" class="reporte-input">
+                </div>
+                <button class="btn-primary reporte-btn" id="reporteBtnGenerar">
+                    <i class="fas fa-chart-bar"></i> Generar Reporte
+                </button>
+                <button class="btn-secondary reporte-btn" id="reporteBtnExportar">
+                    <i class="fas fa-file-pdf"></i> Exportar
+                </button>
+            </div>
+
+            <div id="reporteResultados" style="display: none;">
+                <div class="reporte-cabecera" id="reporteCabecera">
+                    <div class="reporte-titulo">
+                        <h2>📊 Reporte de Producción - Trazabilidad</h2>
+                        <p id="reporteSubtitulo">Análisis completo de variables agrícolas</p>
+                    </div>
+                    <div class="reporte-metadata">
+                        <span><i class="fas fa-calendar-alt"></i> <span id="reportePeriodo">--</span></span>
+                        <span><i class="fas fa-map-marker-alt"></i> <span id="reporteUbicacion">--</span></span>
+                        <span><i class="fas fa-seedling"></i> <span id="reporteCultivo">--</span></span>
+                        <span><i class="fas fa-database"></i> <span id="reporteRegistros">--</span></span>
+                    </div>
+                </div>
+
+                <div class="reporte-stats-grid" id="reporteStatsGrid">
+                    <div class="reporte-stat-card color-temp">
+                        <span class="stat-icon"><i class="fas fa-thermometer-half"></i></span>
+                        <div class="stat-label">Temperatura Promedio</div>
+                        <div class="stat-value" id="reporteStatTemp">-- <span class="unit">°C</span></div>
+                        <div class="stat-sub" id="reporteStatTempSub">Máx: -- / Mín: --</div>
+                    </div>
+                    <div class="reporte-stat-card color-hum">
+                        <span class="stat-icon"><i class="fas fa-droplet"></i></span>
+                        <div class="stat-label">Humedad Promedio</div>
+                        <div class="stat-value" id="reporteStatHum">-- <span class="unit">%</span></div>
+                        <div class="stat-sub" id="reporteStatHumSub">Máx: -- / Mín: --</div>
+                    </div>
+                    <div class="reporte-stat-card color-gdd">
+                        <span class="stat-icon"><i class="fas fa-leaf"></i></span>
+                        <div class="stat-label">GDD Acumulado</div>
+                        <div class="stat-value" id="reporteStatGDD">--</div>
+                        <div class="stat-sub" id="reporteStatGDDSub">Progreso: --%</div>
+                    </div>
+                    <div class="reporte-stat-card color-balance">
+                        <span class="stat-icon"><i class="fas fa-water"></i></span>
+                        <div class="stat-label">Balance Hídrico</div>
+                        <div class="stat-value" id="reporteStatBalance">-- <span class="unit">mm</span></div>
+                        <div class="stat-sub" id="reporteStatBalanceSub">Precip: -- / ETo: --</div>
+                    </div>
+                    <div class="reporte-stat-card color-calidad">
+                        <span class="stat-icon"><i class="fas fa-trophy"></i></span>
+                        <div class="stat-label">Índice de Calidad</div>
+                        <div class="stat-value" id="reporteStatCalidad">--</div>
+                        <div class="stat-sub" id="reporteStatCalidadSub">--</div>
+                    </div>
+                </div>
+
+                <div class="reporte-charts-grid">
+                    <div class="chart-card reporte-chart-card full-width">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-line"></i> Evolución Temporal de Variables</h3>
+                            <span class="chart-info">Temp · Humedad · GDD</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="reporteMainChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card reporte-chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-thermometer-half"></i> Temperatura: Máx, Mín, Prom</h3>
+                            <span class="chart-info">Comparativa diaria</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="reporteTempChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card reporte-chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-droplet"></i> Humedad: Máx, Mín, Prom</h3>
+                            <span class="chart-info">Comparativa diaria</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="reporteHumChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card reporte-chart-card full-width">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-water"></i> Balance Hídrico y Precipitación</h3>
+                            <span class="chart-info">Acumulado vs ETo</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="reporteBalanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card reporte-chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-radiation"></i> Radiación Solar</h3>
+                            <span class="chart-info">W/m²</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="reporteRadChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card reporte-chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i> Distribución de Temperatura</h3>
+                            <span class="chart-info">Análisis de frecuencia</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="reporteDistChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card-reporte">
+                    <div class="table-header">
+                        <h3><i class="fas fa-table"></i> Datos Detallados del Reporte</h3>
+                        <span class="badge-info" id="reporteTableInfo">-- registros</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>🌡️ Temp Prom</th>
+                                    <th>🌡️ Max</th>
+                                    <th>🌡️ Min</th>
+                                    <th>💧 Hum Prom</th>
+                                    <th>💧 Max</th>
+                                    <th>💧 Min</th>
+                                    <th>📊 GDD</th>
+                                    <th>💧 Prec</th>
+                                    <th>🌊 Balance</th>
+                                    <th>☀️ Rad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reporteTableBody">
+                                <tr><td colspan="11" class="text-center">Selecciona los parámetros y genera un reporte</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECCIÓN: TRAZABILIDAD ===== -->
+        <section id="trazabilidad" class="section">
+            <h2 class="section-title"><i class="fas fa-qrcode"></i> Trazabilidad Ambiental de Producción</h2>
+            
+            <!-- CONTROLES -->
+            <div class="trazabilidad-controls">
+                <div class="trazabilidad-controls-group">
+                    <label for="trazabilidadEstacionSelector">📍 Estación:</label>
+                    <select id="trazabilidadEstacionSelector" class="trazabilidad-selector">
+                        <option value="">Selecciona una estación...</option>
+                    </select>
+                </div>
+                <div class="trazabilidad-controls-group">
+                    <label for="trazabilidadFechaInicio">📅 Fecha Inicio:</label>
+                    <input type="date" id="trazabilidadFechaInicio" class="trazabilidad-date-input">
+                </div>
+                <div class="trazabilidad-controls-group">
+                    <label for="trazabilidadFechaFin">📅 Fecha Fin:</label>
+                    <input type="date" id="trazabilidadFechaFin" class="trazabilidad-date-input">
+                </div>
+                <button class="btn-primary trazabilidad-btn" id="trazabilidadBtnRefresh">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+                <button class="btn-secondary trazabilidad-btn" id="trazabilidadBtnPdf" type="button">
+                    <i class="fas fa-file-pdf"></i> Imprimir PDF
+                </button>
+            </div>
+
+            <!-- ETAPAS FENOLÓGICAS -->
+            <div class="fenologico-etapas-config">
+                <h3><i class="fas fa-calendar-alt"></i> Configurar Etapas Fenológicas del Café</h3>
+                <div class="etapas-inputs-grid">
+                    <div class="etapa-input">
+                        <label>🌱 Botón Floral</label>
+                        <input type="date" id="etapaBotonFloral" class="etapa-date-input">
+                    </div>
+                    <div class="etapa-input">
+                        <label>🌸 Floración</label>
+                        <input type="date" id="etapaFloracion" class="etapa-date-input">
+                    </div>
+                    <div class="etapa-input">
+                        <label>🌿 Llenado de Fruto</label>
+                        <input type="date" id="etapaLlenadoFruto" class="etapa-date-input">
+                    </div>
+                    <div class="etapa-input">
+                        <label>🍒 Maduración</label>
+                        <input type="date" id="etapaMaduracion" class="etapa-date-input">
+                    </div>
+                    <div class="etapa-input">
+                        <label>☕ Cosecha</label>
+                        <input type="date" id="etapaCosecha" class="etapa-date-input">
+                    </div>
+                </div>
+                <div class="etapas-actions">
+                    <button class="btn-secondary" id="etapasPredeterminadas">📅 Cargar Predeterminadas</button>
+                    <button class="btn-primary" id="etapasAplicar">✅ Aplicar Etapas</button>
+                </div>
+            </div>
+
+            <!-- GRÁFICAS -->
+            <div class="trazabilidad-charts-grid">
+                <div class="chart-card-trazabilidad full-width" style="display: none;">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-line"></i> Evolución de Indicadores</h3>
+                        <span class="chart-info">Temperatura · Humedad · GDD</span>
+                        <button type="button" class="btn-download-chart" data-download-chart="main" title="Descargar gráfica en PNG" aria-label="Descargar gráfica en PNG"><i class="fas fa-download"></i><span>PNG</span></button>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="trazabilidadMainChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-trazabilidad">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-thermometer-half"></i> Temperatura: Promedio, Máx, Mín</h3>
+                        <span class="chart-info">Comparativa diaria</span>
+                        <button type="button" class="btn-download-chart" data-download-chart="temp" title="Descargar gráfica en PNG" aria-label="Descargar gráfica en PNG"><i class="fas fa-download"></i><span>PNG</span></button>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="trazabilidadTempChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-trazabilidad">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-droplet"></i> Humedad: Promedio, Máx, Mín</h3>
+                        <span class="chart-info">Comparativa diaria</span>
+                        <button type="button" class="btn-download-chart" data-download-chart="hum" title="Descargar gráfica en PNG" aria-label="Descargar gráfica en PNG"><i class="fas fa-download"></i><span>PNG</span></button>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="trazabilidadHumChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-trazabilidad">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-water"></i> Precipitación y Radiación Solar</h3>
+                        <span class="chart-info">mm · W/m²</span>
+                        <button type="button" class="btn-download-chart" data-download-chart="precipRad" title="Descargar gráfica en PNG" aria-label="Descargar gráfica en PNG"><i class="fas fa-download"></i><span>PNG</span></button>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="trazabilidadPrecipRadChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-trazabilidad">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-moon"></i> Temperatura Nocturna vs Promedio</h3>
+                        <span class="chart-info">20:00 - 06:00</span>
+                        <button type="button" class="btn-download-chart" data-download-chart="night" title="Descargar gráfica en PNG" aria-label="Descargar gráfica en PNG"><i class="fas fa-download"></i><span>PNG</span></button>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="trazabilidadNightChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-trazabilidad">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-cloud-rain"></i> Déficit de Presión de Vapor (VPD)</h3>
+                        <span class="chart-info">VPD = (1 - HR/100) × 0.6107 × 10^((7.5 × T)/(237.3 + T))</span>
+                        <button type="button" class="btn-download-chart" data-download-chart="vpd" title="Descargar gráfica en PNG" aria-label="Descargar gráfica en PNG"><i class="fas fa-download"></i><span>PNG</span></button>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="trazabilidadVpdChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card-trazabilidad">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-clock"></i> Horas con Humedad > 90%</h3>
+                        <span class="chart-info">Riesgo de enfermedades</span>
+                        <button type="button" class="btn-download-chart" data-download-chart="horas90" title="Descargar gráfica en PNG" aria-label="Descargar gráfica en PNG"><i class="fas fa-download"></i><span>PNG</span></button>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="trazabilidadHoras90Chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trazabilidad-interpretacion" style="display: none;">
+                <div class="trazabilidad-interpretacion-header">
+                    <div class="trazabilidad-ia-controls">
+                        <label for="geminiApiKey">Gemini API Key</label>
+                        <input id="geminiApiKey" type="password" placeholder="Pega tu clave de Gemini" autocomplete="off">
+                    </div>
+                    <button id="trazabilidadAnalizarBtn" class="btn-primary trazabilidad-analizar-btn" type="button">
+                        <i class="fas fa-magic"></i> Analizar
+                    </button>
+                </div>
+                <div id="trazabilidadInterpretacionResultado" class="trazabilidad-interpretacion-body empty">
+                    Selecciona una estación y carga los datos para generar una interpretación inteligente del comportamiento ambiental.
+                </div>
+            </div>
+
+            <div class="trazabilidad-ficha-tecnica" style="display: none;">
+                <div class="trazabilidad-ficha-header">
+                    <h3><i class="fas fa-file-contract"></i> Ficha técnica de trazabilidad ambiental</h3>
+                    <button id="trazabilidadFichaPrevisualizarBtn" class="btn-primary trazabilidad-ficha-btn" type="button">
+                        <i class="fas fa-eye"></i> Previsualizar ficha técnica
+                    </button>
+                </div>
+                <div id="trazabilidadFichaPreview" class="trazabilidad-ficha-preview empty">
+                    Previsualiza la ficha técnica de la estación para revisar el análisis, las etapas fenológicas y el desarrollo del cultivo.
+                </div>
+            </div>
+
+            <!-- TABLA -->
+            <div class="table-card-trazabilidad" style="display: none;">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> Datos Detallados de Trazabilidad</h3>
+                    <span class="badge-info" id="trazabilidadTableInfo">-- registros</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>🌡️ Temp Prom</th>
+                                <th>🌡️ Max</th>
+                                <th>🌡️ Min</th>
+                                <th>💧 Hum Prom</th>
+                                <th>💧 Max</th>
+                                <th>💧 Min</th>
+                                <th>🌙 Nocturna</th>
+                                <th>📊 GDD</th>
+                                <th>💧 Prec</th>
+                                <th>☀️ Rad</th>
+                                <th>🌿 Etapa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trazabilidadTableBody">
+                            <tr><td colspan="12" class="text-center">Selecciona una estación y carga los datos</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+    </main>
+
+    <script src="scripts/app.js"></script>
+</body>
+</html>

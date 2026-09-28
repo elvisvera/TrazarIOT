@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FICHA TÉCNICA AGROCLIMÁTICA – LOTE DE CAFÉ</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root {
+      --verde-oscuro: #123a2f;
+      --verde-medio: #1d5c4d;
+      --verde-claro: #dbeedd;
+      --verde-suave: #f3faf2;
+      --marron: #7a4a2f;
+      --ocre: #d9a35d;
+      --gris-oscuro: #2d2d2d;
+      --gris-medio: #67727d;
+      --rojo: #c74e3d;
+      --azul: #2d6ecf;
+      --naranja: #e7a53a;
+      --sombra: 0 8px 24px rgba(18, 58, 47, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(180deg, #f6faf6 0%, #edf4ee 100%);
+      color: var(--gris-oscuro);
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 30px auto;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: var(--sombra);
+      overflow: hidden;
+      border: 1px solid #dbe3d8;
+    }
+
+    .header {
+      background: linear-gradient(120deg, #133d33 0%, #1a5d4b 100%);
+      color: white;
+      padding: 24px 32px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .brand img {
+      width: 150px;
+      max-height: 70px;
+      object-fit: contain;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 8px;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 2vw, 2.5rem);
+      letter-spacing: 0.04em;
+      font-weight: 800;
+    }
+
+    .brand-text p {
+      margin: 6px 0 0;
+      opacity: 0.92;
+      font-size: 0.96rem;
+    }
+
+    .header-badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .content {
+      padding: 28px 30px 40px;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0 28px;
+      background: var(--verde-suave);
+      border: 1px solid #dfeedd;
+      overflow: hidden;
+      border-radius: 14px;
+    }
+
+    .summary-table th,
+    .summary-table td {
+      border: 1px solid #dfeedd;
+      padding: 11px 12px;
+      text-align: left;
+      font-size: 0.96rem;
+    }
+
+    .summary-table th {
+      background: #e8f4e9;
+      width: 30%;
+      color: var(--verde-oscuro);
+      font-weight: 700;
+    }
+
+    .section-title {
+      margin: 24px 0 14px;
+      font-size: 1.35rem;
+      color: var(--verde-oscuro);
+      border-left: 5px solid var(--verde-medio);
+      padding-left: 12px;
+      font-weight: 800;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid #dfeedd;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    thead th {
+      background: #edf7ee;
+      color: var(--verde-oscuro);
+      font-weight: 700;
+      padding: 12px 10px;
+      text-align: center;
+      font-size: 0.8rem;
+      border-bottom: 1px solid #d7e7d8;
+    }
+
+    tbody td {
+      font-size: 0.82rem;
+      border-bottom: 1px solid #edf2eb;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fafcfb;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+      gap: 22px;
+      margin-top: 18px;
+    }
+
+    .chart-card {
+      border: 1px solid #dfeedd;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(17, 68, 58, 0.05);
+      padding: 16px;
+    }
+
+    .chart-card h3 {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+      color: var(--verde-oscuro);
+    }
+
+    .chart-box {
+      width: 100%;
+      height: 360px;
+      position: relative;
+    }
+
+    .interpretacion {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: var(--verde-suave);
+      border-left: 4px solid var(--verde-medio);
+      border-radius: 10px;
+      color: var(--gris-oscuro);
+      font-size: 0.92rem;
+      line-height: 1.75;
+    }
+
+    .integral {
+      margin-top: 26px;
+      background: linear-gradient(180deg, #f6fbf7 0%, #edf8f1 100%);
+      border: 1px solid #dfeedd;
+      border-radius: 14px;
+      padding: 18px 20px;
+      color: var(--gris-oscuro);
+      line-height: 1.8;
+    }
+
+    .integral p {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #123a2f;
+      color: white;
+      padding: 18px 30px;
+      flex-wrap: wrap;
+    }
+
+    .footer img {
+      width: 120px;
+      max-height: 50px;
+      object-fit: contain;
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 6px;
+    }
+
+    .small {
+      font-size: 0.82rem;
+      opacity: 0.85;
+    }
+
+    @media (max-width: 760px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .content {
+        padding: 18px 16px 28px;
+      }
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+      .chart-box {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="brand">
+        <img src="logos/logo1.png" alt="Logo TRAZAR" onerror="this.onerror=null;this.src='https://trazar.com/logo.png';" />
+        <div class="brand-text">
+          <h1>FICHA TÉCNICA AGROCLIMÁTICA – LOTE DE CAFÉ</h1>
+          <p id="subtitulo"><!-- INYECTAR: lote, variedad y fecha de emisión --></p>
+        </div>
+      </div>
+      <div class="header-badge">TRAZAR • Monitoreo ambiental</div>
+    </header>
+
+    <main class="content">
+      <section>
+        <table class="summary-table" aria-label="Resumen de la ficha técnica">
+          <tbody>
+            <tr>
+              <th>Estación</th>
+              <td id="estacionValor"><!-- INYECTAR: nombre_estacion --></td>
+            </tr>
+            <tr>
+              <th>Altitud</th>
+              <td id="altitudValor"><!-- INYECTAR: altitud --> msnm</td>
+            </tr>
+            <tr>
+              <th>Coordenadas</th>
+              <td id="coordenadasValor"><!-- INYECTAR: latitud, longitud --></td>
+            </tr>
+            <tr>
+              <th>Variedad</th>
+              <td id="variedadValor"><!-- INYECTAR: variedad --></td>
+            </tr>
+            <tr>
+              <th>Periodo</th>
+              <td id="periodoValor"><!-- INYECTAR: fecha_inicio a fecha_fin --></td>
+            </tr>
+            <tr>
+              <th>Fecha de emisión</th>
+              <td id="fechaEmisionValor"><!-- INYECTAR: fecha_actual --></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2 class="section-title">1. Cuadro de etapas fenológicas</h2>
+        <div class="table-wrap">
+          <table aria-label="Etapas fenológicas">
+            <thead>
+              <tr>
+                <th>Etapa</th>
+                <th>Duración (días)</th>
+                <th>Temp. promedio (°C)</th>
+                <th>Temp. máxima (°C)</th>
+                <th>Temp. mínima (°C)</th>
+                <th>Temp. nocturna prom. (°C)</th>
+                <th>Humedad relativa prom. (%)</th>
+                <th>Precipitación suma (mm)</th>
+                <th>Radiación prom. (W/m²)</th>
+                <th>VPD prom. (kPa)</th>
+                <th>Horas HR &gt; 90%</th>
+              </tr>
+            </thead>
+            <tbody id="etapasBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">2. Gráficas e interpretaciones</h2>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3>Temperatura (Promedio, Máx, Mín)</h3>
+            <div id="chartTemp" class="chart-box"></div>
+            <div class="interpretacion">
+              El rango térmico del lote se sitúa en el umbral agronómico del café. En etapas como floración y llenado de grano,
+              valores entre 15 y 24 °C favorecen la estabilidad fisiológica y la buena expresión de calidad. Desviaciones altas
+              pueden acelerar la maduración y reducir la uniformidad del lote, afectando la trazabilidad de la calidad final.
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Humedad Relativa</h3>
+            <div id="chartHumedad" class="chart-box"></div>
+            <div class="interpretacion">
+              La humedad relativa condiciona la acumulación de riesgo fitosanitario y la uniformidad del desarrollo del grano.
+              Periodos con HR elevada y persistente favorecen la proliferación de hongos, mientras que valores excesivamente bajos
+              aumentan la exigencia hídrica y pueden comprometer la calidad sensorial por estrés fisiológico y pérdida de densidad.
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Precipitación y Radiación Solar</h3>
+            <div id="chartPrecipRadiacion" class="chart-box"></div>
+            <div class="interpretacion">
+              La relación entre precipitación y radiación define la disponibilidad hídrica y la fotosíntesis efectiva. Un balance
+              equilibrado favorece el llenado de fruto, la acumulación de azúcares y la síntesis de compuestos aromáticos.
+              Cuando la radiación supera la capacidad hídrica del sistema, aumenta el riesgo de estrés y la heterogeneidad en el rendimiento y la taza.
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Temperatura Nocturna</h3>
+            <div id="chartNocturna" class="chart-box"></div>
+            <div class="interpretacion">
+              La temperatura nocturna influye en la respiración y en la maduración lenta del grano. Niveles moderados favorecen perfiles
+              de acidez, dulzor y cuerpo más equilibrados. Temperaturas nocturnas elevadas pueden acelerar la respiración y reducir la calidad
+              de la bebida, con impacto directo en la trazabilidad sensorial del lote.
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Déficit de Presión de Vapor (VPD)</h3>
+            <div id="chartVPD" class="chart-box"></div>
+            <div class="interpretacion">
+              El VPD refleja la demanda atmosférica sobre la planta. En la etapa de floración y cuajado, valores entre 0.8 y 1.2 kPa son
+              generalmente deseables para mantener la salud fisiológica y evitar estrés. VPD alto persiste puede provocar desbalance hídrico,
+              menor tasa de fotosíntesis y pérdida de uniformidad en la calidad del café.
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Horas con Humedad &gt; 90%</h3>
+            <div id="chartHoras90" class="chart-box"></div>
+            <div class="interpretacion">
+              La frecuencia de horas con HR superior al 90% es un indicador clave de riesgo sanitario. Condiciones prolongadas favorecen roya,
+              antracnosis y ojo de gallo, con impacto directo en la pérdida de rendimiento y en la trazabilidad fitosanitaria del lote.
+              Este indicador debe integrarse al manejo preventivo y a la validación del proceso de calidad.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">3. Interpretación integral</h2>
+        <div class="integral">
+          <p id="interpretacionIntegral">
+            <!-- INYECTAR: párrafo de interpretación integral mínimo 150 palabras -->
+            El lote mostró un comportamiento agroclimático relativamente estable y compatible con la producción de café de especialidad cuando se evaluó en conjunto la temperatura, la humedad y la radiación. La fase de desarrollo se caracterizó por una temperatura media en rango agronómico, con variaciones moderadas que favorecieron la floración, el cuajado y el llenado de grano sin generar un estrés fisiológico severo. La humedad relativa se mantuvo dentro de valores que permiten continuidad vegetativa y buena expresión de desarrollo, aunque la presencia de periodos prolongados con HR elevada exige vigilancia fitosanitaria para evitar enfermedades. El balance hídrico y la radiación contribuyeron a una maduración ordenada, con potencial para perfiles sensoriales equilibrados, cuerpo redondo y acidez brillante. En términos de trazabilidad ambiental, el lote presenta una narrativa climática consistente, útil para asociar variables climáticas con la calidad final del café. Las principales recomendaciones incluyen mantener un monitoreo puntual del VPD, ajustar la ventilación y la gestión de riego según la fase fenológica, y reforzar la trazabilidad fitosanitaria en los periodos con mayor humedad relativa.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <img src="logos/logo1.png" alt="Logo TRAZAR footer" onerror="this.onerror=null;this.src='https://trazar.com/logo.png';" />
+      <div class="small">FICHA TÉCNICA AGROCLIMÁTICA • TRAZAR • Documento de trazabilidad y calidad de café</div>
+    </footer>
+  </div>
+
+  <script>
+    // =====================================================
+    // DATOS DINÁMICOS - INYECTAR DESDE JSON/CSV O VARIABLES
+    // =====================================================
+    const ficha = {
+      nombreEstacion: "{{nombre_estacion}}" || "N/D",
+      altitud: "{{altitud}}" || "N/D",
+      latitud: "{{latitud}}" || "N/D",
+      longitud: "{{longitud}}" || "N/D",
+      variedad: "{{variedad}}" || "N/D",
+      fechaInicio: "{{fecha_inicio}}" || "N/D",
+      fechaFin: "{{fecha_fin}}" || "N/D",
+      fechaEmision: new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" }),
+      lote: "{{lote}}" || "Lote de café"
+    };
+
+    const etapas = [
+      // ESTRUCTURA OBLIGATORIA: etapa | duración_dias | temp_prom | temp_max | temp_min | temp_nocturna_prom | humedad_prom | precip_sum | radiacion_prom | vpd_prom | horas_humedad_gt_90
+      { etapa: "Botón floral", duración_dias: 40, temp_prom: 19.8, temp_max: 27.2, temp_min: 14.1, temp_nocturna_prom: 16.8, humedad_prom: 72, precip_sum: 36.5, radiacion_prom: 198, vpd_prom: 0.96, horas_humedad_gt_90: 160 },
+      { etapa: "Floración", duración_dias: 28, temp_prom: 21.2, temp_max: 29.0, temp_min: 15.1, temp_nocturna_prom: 17.4, humedad_prom: 74, precip_sum: 28.7, radiacion_prom: 210, vpd_prom: 1.02, horas_humedad_gt_90: 142 },
+      { etapa: "Cuajado", duración_dias: 35, temp_prom: 22.3, temp_max: 30.5, temp_min: 16.0, temp_nocturna_prom: 18.1, humedad_prom: 75, precip_sum: 44.2, radiacion_prom: 221, vpd_prom: 1.08, horas_humedad_gt_90: 147 },
+      { etapa: "Llenado de grano", duración_dias: 60, temp_prom: 21.7, temp_max: 28.8, temp_min: 15.2, temp_nocturna_prom: 17.6, humedad_prom: 73, precip_sum: 52.1, radiacion_prom: 214, vpd_prom: 0.94, horas_humedad_gt_90: 133 },
+      { etapa: "Maduración", duración_dias: 45, temp_prom: 20.6, temp_max: 26.9, temp_min: 14.3, temp_nocturna_prom: 16.4, humedad_prom: 70, precip_sum: 31.4, radiacion_prom: 190, vpd_prom: 0.88, horas_humedad_gt_90: 118 }
+    ];
+
+    const series = {
+      labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+      tempProm: [18.9, 20.1, 19.6, 22.5, 23.1, 21.8, 20.4, 21.2, 22.1, 20.7],
+      tempMax: [24.7, 27.3, 25.8, 29.5, 31.4, 28.9, 26.8, 27.5, 29.0, 26.6],
+      tempMin: [13.8, 15.2, 14.7, 16.3, 17.5, 15.9, 14.6, 15.7, 16.2, 14.8],
+      humedad: [76, 72, 74, 71, 68, 75, 73, 70, 77, 69],
+      precip: [18, 22, 26, 33, 28, 15, 12, 20, 24, 18],
+      radiacion: [180, 198, 212, 230, 219, 204, 191, 186, 205, 196],
+      nocturna: [16.4, 17.1, 16.9, 18.0, 18.5, 17.8, 16.7, 17.4, 18.1, 17.0],
+      vpd: [0.82, 0.94, 1.02, 1.12, 1.20, 1.08, 0.93, 0.86, 0.98, 0.91],
+      horas90: [21, 24, 29, 22, 18, 25, 27, 20, 16, 19]
+    };
+
+    function safeValue(value, fallback = "N/D") {
+      return value === undefined || value === null || value === "" || value === "{{undefined}}" ? fallback : value;
+    }
+
+    function populateMeta() {
+      document.getElementById("subtitulo").textContent = `${safeValue(ficha.lote)} • ${safeValue(ficha.variedad)} • Emisión: ${safeValue(ficha.fechaEmision)}`;
+      document.getElementById("estacionValor").textContent = safeValue(ficha.nombreEstacion);
+      document.getElementById("altitudValor").textContent = `${safeValue(ficha.altitud)} msnm`;
+      document.getElementById("coordenadasValor").textContent = `${safeValue(ficha.latitud)}, ${safeValue(ficha.longitud)}`;
+      document.getElementById("variedadValor").textContent = safeValue(ficha.variedad);
+      document.getElementById("periodoValor").textContent = `${safeValue(ficha.fechaInicio)} a ${safeValue(ficha.fechaFin)}`;
+      document.getElementById("fechaEmisionValor").textContent = safeValue(ficha.fechaEmision);
+    }
+
+    function populateEtapas() {
+      const tbody = document.getElementById("etapasBody");
+      tbody.innerHTML = etapas.map(etapa => `
+        <tr>
+          <td>${safeValue(etapa.etapa)}</td>
+          <td>${safeValue(etapa.duración_dias, "N/D")}</td>
+          <td>${safeValue(etapa.temp_prom, "N/D")}</td>
+          <td>${safeValue(etapa.temp_max, "N/D")}</td>
+          <td>${safeValue(etapa.temp_min, "N/D")}</td>
+          <td>${safeValue(etapa.temp_nocturna_prom, "N/D")}</td>
+          <td>${safeValue(etapa.humedad_prom, "N/D")}</td>
+          <td>${safeValue(etapa.precip_sum, "N/D")}</td>
+          <td>${safeValue(etapa.radiacion_prom, "N/D")}</td>
+          <td>${safeValue(etapa.vpd_prom, "N/D")}</td>
+          <td>${safeValue(etapa.horas_humedad_gt_90, "N/D")}</td>
+        </tr>
+      `).join("");
+    }
+
+    function buildTemperatureChart() {
+      const trace1 = {
+        x: series.labels,
+        y: series.tempProm,
+        mode: "lines+markers",
+        name: "Promedio",
+        line: { color: "#1d5c4d", width: 3 },
+        marker: { size: 7 }
+      };
+
+      const trace2 = {
+        x: series.labels,
+        y: series.tempMax,
+        mode: "lines+markers",
+        name: "Máx",
+        line: { color: "#d76b46", width: 2.5, dash: "dot" },
+        marker: { size: 6 }
+      };
+
+      const trace3 = {
+        x: series.labels,
+        y: series.tempMin,
+        mode: "lines+markers",
+        name: "Mín",
+        line: { color: "#4b8ed8", width: 2.5, dash: "dash" },
+        marker: { size: 6 }
+      };
+
+      const layout = {
+        margin: { t: 18, r: 18, b: 42, l: 48 },
+        paper_bgcolor: "#fff",
+        plot_bgcolor: "#fff",
+        legend: { orientation: "h", y: 1.18 },
+        xaxis: { title: "Periodo (días)", tickfont: { size: 10 } },
+        yaxis: { title: "Temperatura (°C)", range: [10, 35] }
+      };
+
+      Plotly.newPlot("chartTemp", [trace1, trace2, trace3], layout, { responsive: true, displayModeBar: false });
+    }
+
+    function buildHumidityChart() {
+      const trace = {
+        x: series.labels,
+        y: series.humedad,
+        mode: "lines+markers",
+        name: "HR",
+        line: { color: "#2d6ecf", width: 3 },
+        fill: "tozeroy",
+        fillcolor: "rgba(45,110,207,0.12)",
+        marker: { size: 6 }
+      };
+
+      const layout = {
+        margin: { t: 18, r: 18, b: 42, l: 48 },
+        paper_bgcolor: "#fff",
+        plot_bgcolor: "#fff",
+        xaxis: { title: "Periodo (días)" },
+        yaxis: { title: "Humedad relativa (%)", range: [45, 100] }
+      };
+
+      Plotly.newPlot("chartHumedad", [trace], layout, { responsive: true, displayModeBar: false });
+    }
+
+    function buildPrecipRadiacionChart() {
+      const precip = {
+        x: series.labels,
+        y: series.precip,
+        type: "bar",
+        name: "Precipitación (mm)",
+        marker: { color: "#41a874" }
+      };
+
+      const rad = {
+        x: series.labels,
+        y: series.radiacion,
+        type: "scatter",
+        mode: "lines+markers",
+        name: "Radiación (W/m²)",
+        yaxis: "y2",
+        line: { color: "#e7a53a", width: 3 },
+        marker: { size: 6 }
+      };
+
+      const layout = {
+        margin: { t: 18, r: 50, b: 42, l: 52 },
+        paper_bgcolor: "#fff",
+        plot_bgcolor: "#fff",
+        legend: { orientation: "h", y: 1.18 },
+        xaxis: { title: "Periodo (días)" },
+        yaxis: { title: "Precipitación (mm)", side: "left" },
+        yaxis2: {
+          title: "Radiación (W/m²)",
+          overlaying: "y",
+          side: "right",
+          rangemode: "tozero"
+        }
+      };
+
+      Plotly.newPlot("chartPrecipRadiacion", [precip, rad], layout, { responsive: true, displayModeBar: false });
+    }
+
+    function buildNocturnaChart() {
+      const trace = {
+        x: series.labels,
+        y: series.nocturna,
+        mode: "lines+markers",
+        name: "Temp. nocturna",
+        line: { color: "#7337a6", width: 3 },
+        marker: { size: 6 }
+      };
+
+      const layout = {
+        margin: { t: 18, r: 18, b: 42, l: 50 },
+        paper_bgcolor: "#fff",
+        plot_bgcolor: "#fff",
+        xaxis: { title: "Periodo (días)" },
+        yaxis: { title: "Temperatura nocturna (°C)", range: [12, 24] }
+      };
+
+      Plotly.newPlot("chartNocturna", [trace], layout, { responsive: true, displayModeBar: false });
+    }
+
+    function buildVPDChart() {
+      const trace = {
+        x: series.labels,
+        y: series.vpd,
+        mode: "lines+markers",
+        name: "VPD",
+        line: { color: "#c74e3d", width: 3 },
+        marker: { size: 6 }
+      };
+
+      const range1 = {
+        x: series.labels,
+        y: Array(series.labels.length).fill(0.8),
+        mode: "lines",
+        name: "Límite inferior (0.8 kPa)",
+        line: { color: "#2d6ecf", dash: "dash", width: 2 },
+        hoverinfo: "skip"
+      };
+
+      const range2 = {
+        x: series.labels,
+        y: Array(series.labels.length).fill(1.2),
+        mode: "lines",
+        name: "Límite superior (1.2 kPa)",
+        line: { color: "#d9a35d", dash: "dash", width: 2 },
+        hoverinfo: "skip"
+      };
+
+      const layout = {
+        margin: { t: 18, r: 18, b: 42, l: 50 },
+        paper_bgcolor: "#fff",
+        plot_bgcolor: "#fff",
+        legend: { orientation: "h", y: 1.18 },
+        xaxis: { title: "Periodo (días)" },
+        yaxis: { title: "VPD (kPa)", range: [0.5, 1.6] }
+      };
+
+      Plotly.newPlot("chartVPD", [trace, range1, range2], layout, { responsive: true, displayModeBar: false });
+    }
+
+    function buildHoras90Chart() {
+      const trace = {
+        x: series.labels,
+        y: series.horas90,
+        type: "bar",
+        name: "Horas HR > 90%",
+        marker: { color: "#3d8f88" }
+      };
+
+      const layout = {
+        margin: { t: 18, r: 18, b: 42, l: 50 },
+        paper_bgcolor: "#fff",
+        plot_bgcolor: "#fff",
+        xaxis: { title: "Periodo (días)" },
+        yaxis: { title: "Horas", rangemode: "tozero" }
+      };
+
+      Plotly.newPlot("chartHoras90", [trace], layout, { responsive: true, displayModeBar: false });
+    }
+
+    function drawCharts() {
+      buildTemperatureChart();
+      buildHumidityChart();
+      buildPrecipRadiacionChart();
+      buildNocturnaChart();
+      buildVPDChart();
+      buildHoras90Chart();
+    }
+
+    function bindResize() {
+      window.addEventListener("resize", () => {
+        Plotly.Plots.resize(document.getElementById("chartTemp"));
+        Plotly.Plots.resize(document.getElementById("chartHumedad"));
+        Plotly.Plots.resize(document.getElementById("chartPrecipRadiacion"));
+        Plotly.Plots.resize(document.getElementById("chartNocturna"));
+        Plotly.Plots.resize(document.getElementById("chartVPD"));
+        Plotly.Plots.resize(document.getElementById("chartHoras90"));
+      });
+    }
+
+    populateMeta();
+    populateEtapas();
+    drawCharts();
+    bindResize();
+  </script>
+</body>
+</html>
